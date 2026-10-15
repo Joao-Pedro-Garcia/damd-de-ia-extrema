@@ -1,0 +1,13 @@
+{
+  "name": "damas-ia-extrema",
+  "version": "1.0.0",
+  "description": "Jogo de Damas Brasileiras contra uma IA de alto nível (HTML, CSS e JavaScript puros).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "match": "node tests/match.mjs"
+  },
+  "license": "MIT"
+}
