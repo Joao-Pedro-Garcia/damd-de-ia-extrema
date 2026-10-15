@@ -19,6 +19,8 @@ import {
   makeMove,
   unmakeMove,
   isSpecialEnding,
+  maxCaptureCount,
+  hasQuietMove,
   QUIET_DRAW_PLIES,
   SPECIAL_ENDING_PLIES,
 } from '../engine/rules.js';
@@ -159,13 +161,19 @@ export class Searcher {
       if (alpha >= beta) return alpha;
     }
 
+    // Quiescence: sem capturas pendentes, avalia; com capturas, continua.
+    // (Verifica capturas sem gerar a lista completa de lances.)
+    if (depth <= 0 || ply >= MAX_PLY - 1) {
+      if (maxCaptureCount(pos, pos.side) === 0) {
+        if (!hasQuietMove(pos)) return -MATE + ply; // bloqueado = derrota
+        return evaluate(pos, this.evalLevel);
+      }
+      if (ply >= MAX_PLY - 1) return evaluate(pos, this.evalLevel);
+    }
+
     const moves = generateMoves(pos);
     if (moves.length === 0) return -MATE + ply; // sem lances = derrota
-    if (ply >= MAX_PLY - 1) return evaluate(pos, this.evalLevel);
-
     const isCapture = moves[0].caps.length > 0;
-    // Quiescence: sem capturas pendentes, avalia; com capturas, continua.
-    if (depth <= 0 && !isCapture) return evaluate(pos, this.evalLevel);
 
     const ttIdx = this.ttProbe(pos);
     if (ttIdx >= 0 && !isPV && this.ttDepth[ttIdx] >= depth) {

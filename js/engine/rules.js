@@ -262,6 +262,8 @@ export function maxCaptureCount(pos, side) {
   return generateCaptures(pos, side, null);
 }
 
+const NO_CAPS = Object.freeze([]);
+
 function generateQuiet(pos, out) {
   const b = pos.board;
   const side = pos.side;
@@ -274,7 +276,7 @@ function generateQuiet(pos, out) {
       for (let d = d0; d < d0 + 2; d++) {
         const n = NEIGH[sq * 4 + d];
         if (n >= 0 && b[n] === EMPTY) {
-          out.push(makeMoveObj(sq, n, [n], [], [], 0, p, ROW[n] === promoRow));
+          out.push(makeMoveObj(sq, n, [n], NO_CAPS, NO_CAPS, 0, p, ROW[n] === promoRow));
         }
       }
     } else {
@@ -283,7 +285,7 @@ function generateQuiet(pos, out) {
         for (let i = 0; i < ray.length; i++) {
           const n = ray[i];
           if (b[n] !== EMPTY) break;
-          out.push(makeMoveObj(sq, n, [n], [], [], 0, p, false));
+          out.push(makeMoveObj(sq, n, [n], NO_CAPS, NO_CAPS, 0, p, false));
         }
       }
     }
@@ -300,7 +302,11 @@ export function generateMoves(pos) {
 
 /** Existe alguma jogada legal? (mais rápido que gerar tudo). */
 export function hasAnyMove(pos) {
-  if (maxCaptureCount(pos, pos.side) > 0) return true;
+  return maxCaptureCount(pos, pos.side) > 0 || hasQuietMove(pos);
+}
+
+/** Existe algum lance sem captura para o lado a mover? */
+export function hasQuietMove(pos) {
   const b = pos.board;
   const side = pos.side;
   const d0 = side === WHITE ? 0 : 2;
